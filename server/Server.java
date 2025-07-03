@@ -7,6 +7,7 @@ import java.util.*;
 // Server class creates server socket, and accpets client connections, making a new thread for each client
 public class Server {
 
+    // Add client output streams into a list 
     static List<DataOutputStream> clientOutputs = Collections.synchronizedList(new ArrayList<>());
 
 
@@ -17,6 +18,7 @@ public class Server {
         while (true) {
             Socket socket = serverSocket.accept();
             System.out.println("Client connected");
+
             // Start a new thread for each client
             new Thread(new ClientHandler(socket)).start();
         }
@@ -37,15 +39,15 @@ class ClientHandler implements Runnable {
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
+            // Add client output stream to list
             Server.clientOutputs.add(out);
-            System.out.println("Handling client in thread: " + Thread.currentThread().getName());
 
             System.out.println("Username: " + in.readUTF());
 
             while (socket.isConnected()) {
                 String msg = in.readUTF();
                 System.out.println(msg);
-                broadcast(msg);
+                broadcast(msg, out);
 
                 if (msg.toLowerCase().contains("exit")) {
                     for (DataOutputStream dos : Server.clientOutputs) {
@@ -63,10 +65,12 @@ class ClientHandler implements Runnable {
     }
 
     // Broadcast message to all clients
-    private void broadcast(String message) {
+    private void broadcast(String message, DataOutputStream senderout) {
         synchronized (Server.clientOutputs) {
             for (DataOutputStream clientOut : Server.clientOutputs) {
+                if (clientOut != senderout)
                 try {
+                    
                     clientOut.writeUTF(message);
                 } catch (IOException e) {
                     // Ignore failed sends

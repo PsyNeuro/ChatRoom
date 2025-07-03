@@ -22,6 +22,8 @@ public class Client {
        String userName = myObj.nextLine();
        
        out.writeUTF(userName);
+       out.writeUTF(userName + " has joined the chat!");
+
 
        // Create listening thread
        Client_listen client_listen = new Client_listen(in);
@@ -36,6 +38,7 @@ public class Client {
 
            // Optional: break the loop if user types "exit"
             if (msg.equalsIgnoreCase("exit")) {
+                out.writeUTF(userName + ": " + "has left the chat...");
                 break;
             }
        }
