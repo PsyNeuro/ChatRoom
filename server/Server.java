@@ -10,6 +10,21 @@ public class Server {
     // Add client output streams into a list 
     static List<DataOutputStream> clientOutputs = Collections.synchronizedList(new ArrayList<>());
 
+    // Create a list to have the listeners 
+    static List<MessageListener> listeners = new ArrayList<>();
+
+    // A function that adds people to the listeners list
+    public static void addMessageListener(MessageListener listener) {
+            listeners.add(listener);
+    }
+
+    // A function that sends a message to those listeners via messagelistener and onMessage
+    public static void notifyListeners(String message) {
+
+        for (MessageListener listener : listeners) {
+            listener.onMessage(message);
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(6666);
@@ -21,6 +36,7 @@ public class Server {
 
             // Start a new thread for each client
             new Thread(new ClientHandler(socket)).start();
+        
         }
     }
 }
@@ -36,13 +52,18 @@ class ClientHandler implements Runnable {
 
     public void run() {
         try {
+            System.out.println("Listeners: " + Server.listeners);
+            Server.notifyListeners("Server Started");
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
             // Add client output stream to list
             Server.clientOutputs.add(out);
 
-            System.out.println("Username: " + in.readUTF());
+            String username_msg = "Username: " + in.readUTF();
+            System.out.println(username_msg);
+            Server.notifyListeners(username_msg);
+
 
             while (socket.isConnected()) {
                 String msg = in.readUTF();
