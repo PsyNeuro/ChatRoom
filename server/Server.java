@@ -7,7 +7,7 @@ import java.util.*;
 // Server class creates server socket, and accpets client connections, making a new thread for each client
 public class Server {
 
-    // Add client output streams into a list 
+    // Add client output streams into a list for multithreading 
     static List<DataOutputStream> clientOutputs = Collections.synchronizedList(new ArrayList<>());
 
     // Create a list to have the listeners 
@@ -53,7 +53,8 @@ class ClientHandler implements Runnable {
     public void run() {
         try {
             System.out.println("Listeners: " + Server.listeners);
-            Server.notifyListeners("Server Started");
+            // Server.notifyListeners("Server Started");
+            new Thread(new NotifierThread("Server Started")).start();
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
@@ -62,13 +63,16 @@ class ClientHandler implements Runnable {
 
             String username_msg = "Username: " + in.readUTF();
             System.out.println(username_msg);
-            Server.notifyListeners(username_msg);
+            // Server.notifyListeners(username_msg);
+            new Thread(new NotifierThread(username_msg + " has joined the chat!")).start();
 
 
             while (socket.isConnected()) {
                 String msg = in.readUTF();
                 System.out.println(msg);
                 broadcast(msg, out);
+                // Server.notifyListeners(msg);
+                new Thread(new NotifierThread(msg)).start();
 
                 if (msg.toLowerCase().contains("exit")) {
                     for (DataOutputStream dos : Server.clientOutputs) {
