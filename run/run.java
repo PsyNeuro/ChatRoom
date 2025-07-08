@@ -1,11 +1,12 @@
 package run;
 import server.Server;
-import GUI.GUI;
+import GUI_S.GUI_S;
+import GUI_C.GUI_C;
 import client.Client;
 
 public class run {
     public static void main(String[] args) {
-        GUI.main(null);
+        javax.swing.SwingUtilities.invokeLater(() -> GUI_S.main(null));
 
         // Start server in a new thread
         new Thread(() -> {
@@ -25,6 +26,8 @@ public class run {
             }
         }).start();
 
+        javax.swing.SwingUtilities.invokeLater(() -> GUI_C.main(null));
+
         new Thread(() -> {
             try {
                 Client.main(null);
@@ -32,5 +35,8 @@ public class run {
                 e.printStackTrace();
             }
         }).start();
+
+        javax.swing.SwingUtilities.invokeLater(() -> GUI_C.main(null));
+        
     }
 }

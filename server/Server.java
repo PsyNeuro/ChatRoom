@@ -4,7 +4,7 @@ import java.net.*;
 import java.util.*;
 
 
-// Server class creates server socket, and accpets client connections, making a new thread for each client
+// Server class creates server socket, and accepts client connections, making a new thread for each client
 public class Server {
 
     // Add client output streams into a list for multithreading 

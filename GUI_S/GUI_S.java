@@ -1,13 +1,13 @@
-package GUI;
+package GUI_S;
 import javax.swing.*;
 import server.MessageListener;
 import server.Server;
 
-public class GUI implements MessageListener {
-    JFrame frame = new JFrame("GUI_frame");
+public class GUI_S implements MessageListener {
+    JFrame frame = new JFrame("Server GUI");
     JPanel panel = new JPanel();
 
-    public GUI() {
+    public GUI_S() {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Vertical stacking
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600);
@@ -30,7 +30,7 @@ public class GUI implements MessageListener {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            GUI gui = new GUI();
+            GUI_S gui = new GUI_S();
             System.out.println("GUI started");
             Server.addMessageListener(gui);
         });

@@ -2,13 +2,31 @@ package client;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.Scanner;
 
 public class Client {
-   public static void main(String[] args) throws IOException {
+
+    // Create a list to have the listeners 
+    static List<MessageListener> listeners = new ArrayList<>();
+
+    // A function that adds people to the listeners list
+    public static void addMessageListener(MessageListener listener) {
+            listeners.add(listener);
+    }
+
+    // A function that sends a message to those listeners via messagelistener and onMessage
+    public static void notifyListeners(String message) {
+
+        for (MessageListener listener : listeners) {
+            listener.onMessage(message);
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
        // Create a socket to connect to the server, its on port 6666
        Socket socket = new Socket("localhost", 6666);
        System.out.println("Connected to server");
+       Client.notifyListeners("Connected to server");
+       
 
        // Create output and input streams for communication
        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -34,6 +52,7 @@ public class Client {
 
             String msg = myObj.nextLine();
             out.writeUTF(userName + ": " + msg);
+            Client.notifyListeners(msg);
 
 
            // Optional: break the loop if user types "exit"
