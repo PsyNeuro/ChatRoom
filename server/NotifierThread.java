@@ -1,11 +1,10 @@
 package server;
 
-class NotifierThread implements Runnable {
+public class NotifierThread implements Runnable {
     private String message;
-    
+
     public NotifierThread(String message) {
         this.message = message;
-
     }
 
     @Override

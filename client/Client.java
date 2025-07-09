@@ -24,7 +24,7 @@ public class Client {
     public static void main(String[] args) throws IOException {
        // Create a socket to connect to the server, its on port 6666
        Socket socket = new Socket("localhost", 6666);
-       System.out.println("Connected to server");
+       System.out.println("[CLIENT] Connected to server");
        Client.notifyListeners("Connected to server");
        
 
@@ -36,11 +36,13 @@ public class Client {
        Scanner myObj = new Scanner(System.in);  
 
        // Get username
-       System.out.println("Enter username");
+       System.out.println("[CLIENT] Enter username");
        String userName = myObj.nextLine();
        
        out.writeUTF(userName);
+       out.flush();
        out.writeUTF(userName + " has joined the chat!");
+       out.flush();
 
 
        // Create listening thread
@@ -52,12 +54,14 @@ public class Client {
 
             String msg = myObj.nextLine();
             out.writeUTF(userName + ": " + msg);
-            Client.notifyListeners(msg);
+            out.flush();
+            Client.notifyListeners(userName + ": " + msg);
 
 
            // Optional: break the loop if user types "exit"
             if (msg.equalsIgnoreCase("exit")) {
                 out.writeUTF(userName + ": " + "has left the chat...");
+                out.flush();
                 break;
             }
        }

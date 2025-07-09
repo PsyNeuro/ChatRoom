@@ -32,7 +32,7 @@ public class Server {
 
         while (true) {
             Socket socket = serverSocket.accept();
-            System.out.println("Client connected");
+            System.out.println("[SERVER] Client connected");
 
             // Start a new thread for each client
             new Thread(new ClientHandler(socket)).start();
@@ -52,7 +52,7 @@ class ClientHandler implements Runnable {
 
     public void run() {
         try {
-            System.out.println("Listeners: " + Server.listeners);
+            System.out.println("[SERVER] Listeners: " + Server.listeners);
             // Server.notifyListeners("Server Started");
             new Thread(new NotifierThread("Server Started")).start();
             DataInputStream in = new DataInputStream(socket.getInputStream());
@@ -62,30 +62,30 @@ class ClientHandler implements Runnable {
             Server.clientOutputs.add(out);
 
             String username_msg = "Username: " + in.readUTF();
-            System.out.println(username_msg);
+            System.out.println("[SERVER] " + username_msg);
             // Server.notifyListeners(username_msg);
             new Thread(new NotifierThread(username_msg + " has joined the chat!")).start();
 
 
             while (socket.isConnected()) {
                 String msg = in.readUTF();
-                System.out.println(msg);
+                System.out.println("[SERVER] " + msg);
                 broadcast(msg, out);
                 // Server.notifyListeners(msg);
                 new Thread(new NotifierThread(msg)).start();
 
                 if (msg.toLowerCase().contains("exit")) {
                     for (DataOutputStream dos : Server.clientOutputs) {
-                        System.out.println("OutputStream: " + dos);
+                        System.out.println("[SERVER] OutputStream: " + dos);
                     }
-                    System.out.println("Client disconnected");
+                    System.out.println("[SERVER] Client disconnected");
                     break;
                 }
             }
 
             socket.close();
         } catch (IOException e) {
-            System.out.println("Connection error: " + e.getMessage());
+            System.out.println("[SERVER] Connection error: " + e.getMessage());
         }
     }
 
@@ -97,6 +97,7 @@ class ClientHandler implements Runnable {
                 try {
                     
                     clientOut.writeUTF(message);
+                    clientOut.flush();
                 } catch (IOException e) {
                     // Ignore failed sends
                 }

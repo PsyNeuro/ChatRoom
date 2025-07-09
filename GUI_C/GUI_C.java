@@ -19,7 +19,7 @@ public class GUI_C implements MessageListener{
 
     @Override
     public void onMessage(String message) {
-        System.out.println("Message received in GUI: " + message);
+        System.out.println("Message received in Client GUI: " + message);
         try {
             JLabel label = new JLabel(message, JLabel.LEFT);
             panel.add(label);
@@ -33,8 +33,8 @@ public class GUI_C implements MessageListener{
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             GUI_C gui = new GUI_C();
-            System.out.println("GUI started");
             Client.addMessageListener(gui);
+            System.out.println("Client GUI started");
         });
     }
 
