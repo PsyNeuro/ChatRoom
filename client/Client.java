@@ -66,8 +66,8 @@ public class Client {
             }
        }
 
-
        myObj.close();
        socket.close();
+
    }
 }

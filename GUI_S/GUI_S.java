@@ -1,7 +1,10 @@
 package GUI_S;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.Socket;
+
 import javax.swing.*;
 import server.MessageListener;
-import server.Server;
 
 public class GUI_S implements MessageListener {
     JFrame frame = new JFrame("Server GUI");
@@ -18,21 +21,46 @@ public class GUI_S implements MessageListener {
     @Override
     public void onMessage(String message) {
         System.out.println("Message received in Server GUI: " + message);
-        try {
-            JLabel label = new JLabel(message, JLabel.LEFT);
-            panel.add(label);
-            panel.revalidate(); // Refresh layout
-            panel.repaint();    // Redraw
-        } catch (Exception e) {
-            System.out.println("Something went wrong.");
-        }
-    }
-
-    public static void main(String[] args) {
+        // Ensure the GUI work is on the EDT thread, and all the other stuff is on a seperate thread 
         SwingUtilities.invokeLater(() -> {
-            GUI_S gui = new GUI_S();
-            Server.addMessageListener(gui);
-            System.out.println("Server GUI started");
+            try {
+                System.out.println("Updating GUI...");
+                JLabel label = new JLabel(message, JLabel.LEFT);
+                panel.add(label);
+                panel.revalidate(); // Refresh layout
+                panel.repaint();    // Redraw
+
+            } catch (Exception e) {
+                System.out.println("Something went wrong.");
+            }
         });
     }
-}
+
+public static void main(String[] args) throws IOException {
+    GUI_S gui = new GUI_S();
+
+    // Start the socket reading in a background thread
+    new Thread(() -> {
+        try {
+            Socket socket = new Socket("localhost", 6666);
+            DataInputStream in = new DataInputStream(socket.getInputStream());
+
+            System.out.println("Server GUI started");
+
+            if (socket.isConnected()) {
+                System.out.println("[SERVER GUI] Connected with Server");
+            }
+
+            // Keep reading messages from the server and update the GUI
+            while (true) {
+                String message = in.readUTF();
+                gui.onMessage(message);
+            }
+
+            // socket.close(); // Only close when you want to exit the GUI
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }).start();
+}}
