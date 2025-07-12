@@ -4,11 +4,27 @@ import java.net.*;
 import java.util.*;
 
 
-// Server class creates server socket, and accpets client connections, making a new thread for each client
+// Server class creates server socket, and accepts client connections, making a new thread for each client
 public class Server {
 
+    // Add client output streams into a list for multithreading 
     static List<DataOutputStream> clientOutputs = Collections.synchronizedList(new ArrayList<>());
 
+    // Create a list to have the listeners 
+    static List<MessageListener> listeners = new ArrayList<>();
+
+    // A function that adds people to the listeners list
+    public static void addMessageListener(MessageListener listener) {
+            listeners.add(listener);
+    }
+
+    // A function that sends a message to those listeners via messagelistener and onMessage
+    public static void notifyListeners(String message) {
+
+        for (MessageListener listener : listeners) {
+            listener.onMessage(message);
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(6666);
@@ -16,9 +32,11 @@ public class Server {
 
         while (true) {
             Socket socket = serverSocket.accept();
-            System.out.println("Client connected");
+            System.out.println("[SERVER] Client connected");
+
             // Start a new thread for each client
             new Thread(new ClientHandler(socket)).start();
+        
         }
     }
 }
@@ -34,45 +52,56 @@ class ClientHandler implements Runnable {
 
     public void run() {
         try {
+            System.out.println("[SERVER] Listeners: " + Server.listeners);
+            // Server.notifyListeners("Server Started");
+            new Thread(new NotifierThread("Server Started")).start();
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
+            // Add client output stream to list
             Server.clientOutputs.add(out);
-            System.out.println("Handling client in thread: " + Thread.currentThread().getName());
 
-            System.out.println("Username: " + in.readUTF());
+            String username_msg = "Username: " + in.readUTF();
+            System.out.println("[SERVER] " + username_msg);
+            // Server.notifyListeners(username_msg);
+            new Thread(new NotifierThread(username_msg + " has joined the chat!")).start();
+
 
             while (socket.isConnected()) {
                 String msg = in.readUTF();
-                System.out.println(msg);
-                broadcast(msg);
+                System.out.println("[SERVER] " + msg);
+                broadcast(msg, out);
+                // Server.notifyListeners(msg);
+                new Thread(new NotifierThread(msg)).start();
 
                 if (msg.toLowerCase().contains("exit")) {
                     for (DataOutputStream dos : Server.clientOutputs) {
-                        System.out.println("OutputStream: " + dos);
+                        System.out.println("[SERVER] OutputStream: " + dos);
                     }
-                    System.out.println("Client disconnected");
+                    System.out.println("[SERVER] Client disconnected");
                     break;
                 }
             }
 
             socket.close();
         } catch (IOException e) {
-            System.out.println("Connection error: " + e.getMessage());
+            System.out.println("[SERVER] Connection error: " + e.getMessage());
         }
     }
 
     // Broadcast message to all clients
-    private void broadcast(String message) {
+    private void broadcast(String message, DataOutputStream senderout) {
         synchronized (Server.clientOutputs) {
             for (DataOutputStream clientOut : Server.clientOutputs) {
+                if (clientOut != senderout)
                 try {
+                    
                     clientOut.writeUTF(message);
+                    clientOut.flush();
                 } catch (IOException e) {
                     // Ignore failed sends
                 }
             }
         }
     }
-
 }

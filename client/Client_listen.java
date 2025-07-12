@@ -13,7 +13,7 @@ public class Client_listen implements Runnable {
         try {
             while (true) {
                 String smsg = in.readUTF();
-                System.out.println(smsg);
+                System.out.println("[CLIENT]" + smsg);
             }
         } catch (IOException e) {
             System.out.println("Connection closed or error: " + e.getMessage());
