@@ -1,10 +1,12 @@
 package GUI_C;
+import java.io.DataInputStream;
+import java.net.Socket;
+import java.io.IOException;
 import javax.swing.*;
 import client.MessageListener;
 import client.Client;
 
-
-public class GUI_C implements MessageListener{
+public class GUI_C{
     
     JFrame frame = new JFrame("Client GUI");
     JPanel panel = new JPanel();
@@ -17,7 +19,6 @@ public class GUI_C implements MessageListener{
         frame.setVisible(true);
     }
 
-    @Override
     public void onMessage(String message) {
         System.out.println("Message received in Client GUI: " + message);
         try {
@@ -30,12 +31,31 @@ public class GUI_C implements MessageListener{
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            GUI_C gui = new GUI_C();
-            Client.addMessageListener(gui);
-            System.out.println("Client GUI started");
-        });
-    }
+public static void main(String[] args) throws IOException {
+    GUI_C gui = new GUI_C();
 
-}
+    // Start the socket reading in a background thread
+    new Thread(() -> {
+        try {
+            Socket socket = new Socket("localhost", 6666);
+            DataInputStream in = new DataInputStream(socket.getInputStream());
+
+            System.out.println("Client GUI started");
+
+            if (socket.isConnected()) {
+                System.out.println("[CLIENT GUI] Connected with Server");
+            }
+
+            // Keep reading messages from the server and update the GUI
+            while (true) {
+                String message = in.readUTF();
+                gui.onMessage(message);
+            }
+
+            // socket.close(); // Only close when you want to exit the GUI
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }).start();
+}}

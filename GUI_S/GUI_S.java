@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import javax.swing.*;
-import server.MessageListener;
-
-public class GUI_S implements MessageListener {
+public class GUI_S {
     JFrame frame = new JFrame("Server GUI");
     JPanel panel = new JPanel();
 
@@ -18,7 +16,6 @@ public class GUI_S implements MessageListener {
         frame.setVisible(true);
     }
 
-    @Override
     public void onMessage(String message) {
         System.out.println("Message received in Server GUI: " + message);
         // Ensure the GUI work is on the EDT thread, and all the other stuff is on a seperate thread 
