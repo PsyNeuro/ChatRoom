@@ -9,8 +9,5 @@ gnome-terminal -- bash -c "cd /home/janushan/code/server_sockets && java server.
 # Start the first client in a new terminal
 gnome-terminal -- bash -c "cd /home/janushan/code/server_sockets && java client.Client; exec bash"
 
-# Start the first client GUI in a new terminal
-gnome-terminal -- bash -c "cd /home/janushan/code/server_sockets && java GUI_C.GUI_C; exec bash"
-
 # Start the second client in a new terminal
 gnome-terminal -- bash -c "cd /home/janushan/code/server_sockets && java client.Client; exec bash"

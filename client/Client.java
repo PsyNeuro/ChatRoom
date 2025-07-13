@@ -3,6 +3,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import GUI_C.GUI_C;
+
 public class Client {
 
     public static void main(String[] args) throws IOException {
@@ -13,6 +15,8 @@ public class Client {
        // Create output and input streams for communication
        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
        DataInputStream in = new DataInputStream(socket.getInputStream());
+
+       GUI_C.startWithSocket(socket);
 
        // Create Scanner once
        Scanner myObj = new Scanner(System.in);  

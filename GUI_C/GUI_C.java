@@ -3,15 +3,15 @@ import java.io.DataInputStream;
 import java.net.Socket;
 import java.io.IOException;
 import javax.swing.*;
-import client.MessageListener;
-import client.Client;
 
 public class GUI_C{
     
     JFrame frame = new JFrame("Client GUI");
     JPanel panel = new JPanel();
+    private Socket socket;
 
-    public GUI_C() {
+    public GUI_C(Socket socket) {
+        this.socket = socket;
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Vertical stacking
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600);
@@ -21,23 +21,24 @@ public class GUI_C{
 
     public void onMessage(String message) {
         System.out.println("Message received in Client GUI: " + message);
-        try {
-            JLabel label = new JLabel(message, JLabel.LEFT);
-            panel.add(label);
-            panel.revalidate(); // Refresh layout
-            panel.repaint();    // Redraw
-        } catch (Exception e) {
-            System.out.println("Something went wrong.");
-        }
+        SwingUtilities.invokeLater(() -> {
+            try {
+                JLabel label = new JLabel(message, JLabel.LEFT);
+                panel.add(label);
+                panel.revalidate();
+                panel.repaint();
+            } catch (Exception e) {
+                System.out.println("Something went wrong.");
+            }
+        });
     }
 
-public static void main(String[] args) throws IOException {
-    GUI_C gui = new GUI_C();
+public static void startWithSocket(Socket socket){
+    GUI_C gui = new GUI_C(socket);
 
     // Start the socket reading in a background thread
     new Thread(() -> {
         try {
-            Socket socket = new Socket("localhost", 6666);
             DataInputStream in = new DataInputStream(socket.getInputStream());
 
             System.out.println("Client GUI started");
