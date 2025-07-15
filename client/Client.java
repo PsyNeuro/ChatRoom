@@ -16,10 +16,12 @@ public class Client {
        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
        DataInputStream in = new DataInputStream(socket.getInputStream());
 
-       GUI_C.startWithSocket(socket);
+       // GUI_C.startWithSocket(socket);
+       GUI_C gui = new GUI_C(socket);
 
        // Create Scanner once
-       Scanner myObj = new Scanner(System.in);  
+       Scanner myObj = new Scanner(System.in);
+
 
        // Get username
        System.out.println("[CLIENT] Enter username");
@@ -32,7 +34,7 @@ public class Client {
 
 
        // Create listening thread
-       Client_listen client_listen = new Client_listen(in);
+       Client_listen client_listen = new Client_listen(in, gui);
        Thread thread = new Thread(client_listen);
        thread.start();
 
@@ -41,6 +43,7 @@ public class Client {
             String msg = myObj.nextLine();
             out.writeUTF(userName + ": " + msg);
             out.flush();
+            
 
            // Optional: break the loop if user types "exit"
             if (msg.equalsIgnoreCase("exit")) {
