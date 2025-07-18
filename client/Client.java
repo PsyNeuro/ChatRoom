@@ -16,12 +16,8 @@ public class Client {
        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
        DataInputStream in = new DataInputStream(socket.getInputStream());
 
-       // GUI_C.startWithSocket(socket);
-       GUI_C gui = new GUI_C(socket);
-
        // Create Scanner once
        Scanner myObj = new Scanner(System.in);
-
 
        // Get username
        System.out.println("[CLIENT] Enter username");
@@ -32,11 +28,14 @@ public class Client {
        out.writeUTF(userName + " has joined the chat!");
        out.flush();
 
-
+       // GUI_C.startWithSocket(socket);
+       GUI_C gui = new GUI_C(socket, userName);
+       
        // Create listening thread
        Client_listen client_listen = new Client_listen(in, gui);
        Thread thread = new Thread(client_listen);
        thread.start();
+
 
        while (socket.isConnected()) {
 

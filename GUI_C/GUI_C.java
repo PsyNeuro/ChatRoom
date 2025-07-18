@@ -13,11 +13,16 @@ public class GUI_C extends JPanel implements ActionListener{
     private JPanel messagePanel; // Dedicated panel for input messages
     private JTextField textField;
     private Socket socket;
+    private String userName;
     private DataInputStream in;
     private DataOutputStream out;
 
-    public GUI_C(Socket socket) throws IOException {
+    // private boolean userbool = false;
+    // private String userName = "username";
+
+    public GUI_C(Socket socket, String userName) throws IOException {
         this.socket = socket;
+        this.userName = userName;
 
         try {
 
@@ -30,7 +35,6 @@ public class GUI_C extends JPanel implements ActionListener{
             e.printStackTrace();
 
         }
-
 
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Vertical stacking
 
@@ -48,6 +52,9 @@ public class GUI_C extends JPanel implements ActionListener{
         textField.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, textField.getPreferredSize().height));
         panel.add(textField);
 
+        JLabel label = new JLabel("[SERVER] You joined the chatroom!", JLabel.LEFT);
+        messagePanel.add(label);
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 600);
         frame.add(panel);
@@ -58,22 +65,23 @@ public class GUI_C extends JPanel implements ActionListener{
     }
 
     public void actionPerformed(ActionEvent evt) {
+    String text = textField.getText();
+    System.out.println("[CLIENT GUI]: (input) " + text);
+    textField.setText("");
 
-        String text = textField.getText();
-        System.out.println("[CLIENT GUI]: (input) " + text);
-        textField.setText("");
-
-        // Send message to server/client
+        // Send message to server/client (only run this for actual messages)
         try {
             if (socket != null && !socket.isClosed()) {
-                // java.io.DataOutputStream out = new java.io.DataOutputStream(socket.getOutputStream());
-                out.writeUTF(text);
+                // userName
+                String message = (userName + ": " + text);
+                onMessage(message);
+
+                out.writeUTF(message);
                 out.flush();
             }
         } catch (IOException e) {
             System.out.println("Error sending message: " + e.getMessage());
         }
-
     }
 
     public void onMessage(String message) {
@@ -90,11 +98,11 @@ public class GUI_C extends JPanel implements ActionListener{
         });
     }
 
-public static void startWithSocket(Socket socket) {
+public static void startWithSocket(Socket socket, String userName) {
     try {
         // DataInputStream in = new DataInputStream(socket.getInputStream());
         // DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-        GUI_C gui = new GUI_C(socket);
+        GUI_C gui = new GUI_C(socket, userName);
 
         // Start the socket reading in a background thread
         new Thread(() -> {
