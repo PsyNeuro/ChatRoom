@@ -3,37 +3,21 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import GUI_C.GUI_C;
+
 public class Client {
-
-    // Create a list to have the listeners 
-    static List<MessageListener> listeners = new ArrayList<>();
-
-    // A function that adds people to the listeners list
-    public static void addMessageListener(MessageListener listener) {
-            listeners.add(listener);
-    }
-
-    // A function that sends a message to those listeners via messagelistener and onMessage
-    public static void notifyListeners(String message) {
-
-        for (MessageListener listener : listeners) {
-            listener.onMessage(message);
-        }
-    }
 
     public static void main(String[] args) throws IOException {
        // Create a socket to connect to the server, its on port 6666
        Socket socket = new Socket("localhost", 6666);
        System.out.println("[CLIENT] Connected to server");
-       Client.notifyListeners("Connected to server");
        
-
        // Create output and input streams for communication
        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
        DataInputStream in = new DataInputStream(socket.getInputStream());
 
        // Create Scanner once
-       Scanner myObj = new Scanner(System.in);  
+       Scanner myObj = new Scanner(System.in);
 
        // Get username
        System.out.println("[CLIENT] Enter username");
@@ -44,19 +28,21 @@ public class Client {
        out.writeUTF(userName + " has joined the chat!");
        out.flush();
 
-
+       // GUI_C.startWithSocket(socket);
+       GUI_C gui = new GUI_C(socket, userName);
+       
        // Create listening thread
-       Client_listen client_listen = new Client_listen(in);
+       Client_listen client_listen = new Client_listen(in, gui);
        Thread thread = new Thread(client_listen);
        thread.start();
+
 
        while (socket.isConnected()) {
 
             String msg = myObj.nextLine();
             out.writeUTF(userName + ": " + msg);
             out.flush();
-            Client.notifyListeners(userName + ": " + msg);
-
+            
 
            // Optional: break the loop if user types "exit"
             if (msg.equalsIgnoreCase("exit")) {
